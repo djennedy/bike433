@@ -13,4 +13,5 @@
 # Built Visual Studio Code Extensions
 *.vsix
 
-# gitignore 
+*Test
+# gitignore
