@@ -6,9 +6,6 @@
  * Assumes the GPS receiver is connected to the UART Grove port on the BBG and UART2 dtb is loaded in uEnv.txt.
 */
 
-#define LATITUDE_STR_LEN 10 // ddmm.mmmm from SIM28 NMEA Message Certification
-#define LONGITUDE_STR_LEN 11 // dddmm.mmmm from  SIM28 NMEA Message Certification
-
 typedef struct {
     // GPS quality indicator. If it's 0 the whole value is invalid.
     // 0: Invalid
@@ -17,11 +14,8 @@ typedef struct {
     // 6: Dead Reckoning Mode, fix valid
     int qualityIndicator;
 
-    char latitudeVal[LATITUDE_STR_LEN]; // Value of latitude, eg: 4124.8963
-    char latitudeDir; // Orientation (direction) of latitude, eg: N or S
-
-    char longitudeVal[LONGITUDE_STR_LEN]; // Value of longitude, eg: 08151.6838
-    char longitudeDir; // Orientation (direction) of longitude, eg: W or E
+    double latitudeVal;
+    double longitudeVal;
 } Gps_values_t;
 
 

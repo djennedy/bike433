@@ -17,6 +17,11 @@
 #define TIME_OUT_VALUE_DS 10 // 10 deciseconds before timeout
 #define GPS_BAUD_RATE B9600
 
+#define LATITUDE_STR_LEN 9 // ddmm.mmmm from SIM28 NMEA Message Certification
+#define LONGITUDE_STR_LEN 10 // dddmm.mmmm from  SIM28 NMEA Message Certification
+#define DEGREE_PRECISION_LAT 2 // 2 digit precision for latitude (ddmm.mmmm)
+#define DEGREE_PRECISION_LONG 3 // 3 digit precision for longitude (dddmm.mmmm)
+
 #define LAT_VAL_INDEX 2
 #define LAT_DIR_INDEX 3
 #define LONG_VAL_INDEX 4
@@ -96,6 +101,50 @@ void Gps_cleanup() {
     close(serialPort);
 }
 
+static double latDDMToDD(char* latStr, char direction) {
+    char degreeStr[DEGREE_PRECISION_LAT + 1];
+    char minuteStr[LATITUDE_STR_LEN - DEGREE_PRECISION_LAT + 1];
+
+    // Populate strings
+    for (int i = 0 ; i < LATITUDE_STR_LEN; i++) {
+        if (i < DEGREE_PRECISION_LAT ) {
+            degreeStr[i] = latStr[i];
+        } else {
+            minuteStr[i - DEGREE_PRECISION_LAT] = latStr[i];
+        }
+    }
+
+    double degree = atof(degreeStr) + (atof(minuteStr) / 60.0);
+    
+    if (direction == 'S') {
+        degree = -degree;
+    }
+
+    return degree;
+}
+
+static double longDDMToDD(char* longStr, char direction) {
+    char degreeStr[DEGREE_PRECISION_LONG + 1];
+    char minuteStr[LONGITUDE_STR_LEN - DEGREE_PRECISION_LONG + 1];
+
+    // Populate strings
+    for (int i = 0 ; i < LONGITUDE_STR_LEN; i++) {
+        if (i < DEGREE_PRECISION_LONG ) {
+            degreeStr[i] = longStr[i];
+        } else {
+            minuteStr[i - DEGREE_PRECISION_LONG] = longStr[i];
+        }
+    }
+
+    double degree = atof(degreeStr) + (atof(minuteStr) / 60.0);
+
+    if (direction == 'W') {
+        degree = -degree;
+    }
+
+    return degree;
+}
+
 // Returns GPS positioning data. Data updates every 1 second +- 10 ns
 Gps_values_t Gps_readData() {
     Gps_values_t result;
@@ -123,24 +172,29 @@ Gps_values_t Gps_readData() {
             continue;
         } 
 
+        char latitudeStr[LATITUDE_STR_LEN+1];
+        char latitudeDir;
+        char longitudeStr[LONGITUDE_STR_LEN+1];
+        char longitudeDir;
+
         for (int tokIndex = 0; token != NULL; tokIndex++) {
             switch (tokIndex) {
                 case LAT_VAL_INDEX:
-                    strncpy(result.latitudeVal, token, LATITUDE_STR_LEN-1);
-                    result.latitudeVal[LATITUDE_STR_LEN-1] = '\0';
+                    strncpy(latitudeStr, token, LATITUDE_STR_LEN);
+                    latitudeStr[LATITUDE_STR_LEN] = '\0';
                     break;
                 
                 case LAT_DIR_INDEX:
-                    result.latitudeDir = token[0];
+                    latitudeDir = token[0];
                     break;
                 
                 case LONG_VAL_INDEX:
-                    strncpy(result.longitudeVal, token, LONGITUDE_STR_LEN-1);
-                    result.longitudeVal[LONGITUDE_STR_LEN-1] = '\0';
+                    strncpy(longitudeStr, token, LONGITUDE_STR_LEN);
+                    longitudeStr[LONGITUDE_STR_LEN] = '\0';
                     break;
                 
                 case LONG_DIR_INDEX:
-                    result.longitudeDir = token[0];
+                    longitudeDir = token[0];
                     break;
 
                 case INDICATOR_INDEX:
@@ -153,6 +207,9 @@ Gps_values_t Gps_readData() {
 
             token = strtok(NULL, delim);
         }
+
+        result.latitudeVal = latDDMToDD(latitudeStr, latitudeDir);
+        result.longitudeVal = longDDMToDD(longitudeStr, longitudeDir);
         break;
     }
 
