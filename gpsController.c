@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <pthread.h>
 #include <fcntl.h> // Contains file controls like O_RDWR
 #include <errno.h> // Error integer and strerror() function
 #include <termios.h> // Contains POSIX terminal control definitions
@@ -33,6 +34,8 @@
 #define STR_MAX_LEN 1024
 
 static const bool debugMode = false;
+
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 static int serialPort;
 
@@ -156,7 +159,14 @@ Gps_values_t Gps_readData() {
     memset(&buf, 0, sizeof(buf));
 
     while(true) {
-        int numBytes = read(serialPort, &buf, sizeof(buf)); // Read one line
+        int numBytes;
+
+        pthread_mutex_lock(&mutex);
+        {
+            numBytes = read(serialPort, &buf, sizeof(buf)); // Read one line
+        }
+        pthread_mutex_unlock(&mutex);
+
         if (numBytes < 0) {
             printf("Gps_readData: Error reading: %s", strerror(errno));
         }
