@@ -1,24 +1,15 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-const express = require('express');
-const cors = require('cors');
-const { spawn } = require("child_process");
-var socketio = require('socket.io').Server;
+var socketio = require('socket.io');
 var io;
+
+var fs = require('fs');
+
 var dgram = require('dgram');
 
 exports.listen = function(server) {
-    io = new socketio({
-        cors: {
-            origin: true,
-            credentials: true
-        }
-    });
-    io.listen(server);
+    io = socketio.listen(server);
+    io.set('log level 1');
 
     io.sockets.on('connection', function(socket) {
-        console.log("connected");
         handleCommand(socket);
     });
 };
