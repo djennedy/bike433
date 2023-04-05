@@ -1,0 +1,15 @@
+{
+  "name": "webcam",
+  "version": "1.0.0",
+  "description": "Node app to serve MPED-MPD file",
+  "main": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sarah Vo",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  }
+}
