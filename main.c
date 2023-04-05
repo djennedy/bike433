@@ -7,8 +7,7 @@
 #include "networkListener.h"
 #include "buzzer.h"
 #include "joystick.h"
-
-#include "gpsTests.h"
+#include "shutdown.h"
 
 void initialize() {
     Gps_init();
@@ -29,7 +28,7 @@ void cleanup() {
 int main() {
     initialize();
 
-    GpsTest_testGpsController();
+    Shutdown_waitForShutdown();
 
     cleanup();
 };
