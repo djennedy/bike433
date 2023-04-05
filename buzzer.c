@@ -72,7 +72,6 @@ void Buzzer_alarmOn(void) {
 }
 
 void Buzzer_alarmOff(void) {
-    buzzerAlarmMode = false;
     pthread_mutex_lock(&alarmMutex);
     { buzzerAlarmMode = false; }
     pthread_mutex_unlock(&alarmMutex);
