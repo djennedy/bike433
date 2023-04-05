@@ -66,9 +66,15 @@ static char* generateReply(Commands command) {
     char* reply;
     switch(command) {
         case GET_LATITUDE: {
-            double lat = GpsTrack_getCurrGpsVal().latitudeVal;
+            Gps_values_t currGpsVal = GpsTrack_getCurrGpsVal();
             char tempString[STRING_MAX_LENGTH];
-            snprintf(tempString, STRING_MAX_LENGTH, "%f", lat);
+            if (currGpsVal.qualityIndicator != 0) {
+                double lat = GpsTrack_getCurrGpsVal().latitudeVal;
+                snprintf(tempString, STRING_MAX_LENGTH, "%f", lat);
+            } else {
+                strcpy(tempString, "invalid");
+            }
+
             int stringLen = strlen(tempString);
             reply = (char*) malloc((stringLen + 1) * sizeof(char));
             strncpy(reply, tempString, stringLen);
@@ -77,9 +83,15 @@ static char* generateReply(Commands command) {
         }
 
         case GET_LONGITUDE: {
-            double lat = GpsTrack_getCurrGpsVal().longitudeVal;
+            Gps_values_t currGpsVal = GpsTrack_getCurrGpsVal();
             char tempString[STRING_MAX_LENGTH];
-            snprintf(tempString, STRING_MAX_LENGTH, "%f", lat);
+            if (currGpsVal.qualityIndicator != 0) {
+                double lon = GpsTrack_getCurrGpsVal().longitudeVal;
+                snprintf(tempString, STRING_MAX_LENGTH, "%f", lon);
+            } else {
+                strcpy(tempString, "invalid");
+            }
+
             int stringLen = strlen(tempString);
             reply = (char*) malloc((stringLen + 1) * sizeof(char));
             strncpy(reply, tempString, stringLen);
