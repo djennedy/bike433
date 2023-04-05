@@ -18,7 +18,6 @@ typedef enum {
 
 static pthread_t joystickThreadID;
 static bool joystickRunning = false;
-static bool isLocked = false;
 static JoystickState joystickState = IDLE;
 
 void* joystickThread(void* args);
