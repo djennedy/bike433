@@ -81,6 +81,7 @@ void GpsTrack_lockPosition() {
 // Unlocks the current positon
 void GpsTrack_unlockPosition() {
     isLocked = false;
+    isMoved = false; // Resets isMoved if gps is unlocked
 }
 
 // Returns true if the gps is in lock state but is mov3ed more than 5 meters
