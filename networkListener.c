@@ -185,7 +185,7 @@ static void* listenToUdp() {
             exit(1);
         }
         // Remove the "\n" from the string
-//        messageRx[bytesRx-1] = 0;
+        messageRx[bytesRx] = 0;
         
         // Process the string received
         Commands commandRx= checkForCommands(messageRx, strlen(messageRx));
