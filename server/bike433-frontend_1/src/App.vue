@@ -21,18 +21,31 @@ const isLocked = ref(false);
 const latestLat = ref(0);
 const latestLong = ref(0);
 const coordinates = ref<Number[][]>([]);
-const images = ref<{image_url:string, coordinate:Number[]}[]>([]);
+// const images = ref<{image_url:string, coordinate:Number[]}[]>([]);
 const stopped = ref(false);
+const refreshes = ref(0);
 
 
-const getLat = async function(){
+const getLat = async function(isClicked? : Boolean){
     socket.emit("udpCommand","get_lat",(response : string)=>{
-        handleInvalidCases(response);
         latestLat.value = Number.parseFloat(response);
     })
 }
 
-const getLong = async function (){
+const getLatButton = () => {
+        socket.emit("udpCommand","get_lat",(response : string)=>{
+            handleInvalidCases(response);
+            latestLat.value = Number.parseFloat(response);
+    })
+}
+
+const getLong = async function (isClicked? : Boolean){
+    socket.emit("udpCommand","get_long",(response : string)=>{
+        latestLong.value = Number.parseFloat(response);
+    })
+}
+
+const getLongButton = async function (isClicked? : Boolean){
     socket.emit("udpCommand","get_long",(response : string)=>{
         handleInvalidCases(response);
         latestLong.value = Number.parseFloat(response);
@@ -40,14 +53,19 @@ const getLong = async function (){
 }
 
 const updateCoordinate = function (){
-    getLat()
-        .then(() => getLong())
+    getLat(false)
+        .then(() => getLong(false))
         .then(() =>{
             if(isNaN(latestLong.value) || isNaN(latestLat.value)){
                 return;
             }
             let coordinate = [latestLat.value, latestLong.value];
+            console.log(coordinate);
             coordinates.value.push(coordinate);
+            console.log(coordinates);
+            if (coordinates.value.length > 1024) {
+                coordinates.value.shift();
+            }
         });
 }
 
@@ -99,11 +117,13 @@ const getImages = function(){
 
 const  updateInfo = function (){
     setInterval(function(){
+        console.log(`updated`);
         updateCoordinate();
         getIsLocked();
         getIsMoved();
-        getImages();
-    },5000);
+        // getImages();
+        refreshes.value += 1;
+    },500);
 }
 
 const toggleLock = function(){
@@ -143,16 +163,18 @@ onMounted(()=>{
 
     <main class="flex flex-col items-center gap-4">
         <h3 class="w-screen text-3xl p-4">Anti Bike-theft Device</h3>
-        <p class=" rounded w-1/2 h-20 bg-green-400 text-center flex items-center justify-center text-4xl text-white" :class="{'bg-red-500':isMoved && isLocked}" >
+        <p class=" rounded w-1/2 h-20 bg-green-400 text-center flex items-center justify-center text-4xl text-white" 
+        :class="{'bg-red-500':isMoved && isLocked}"
+        :key="refreshes" >
             {{ isMoved && isLocked ? 'Stolen!!!' : 'Not Stolen!' }}
         </p>
         <div class="flex flex-row gap-4 items-center ">
-            <button @click="toggleLock" class="p-4 rounded" :class="isLocked ? `bg-red-500` : `bg-green-500`">{{isLocked ? `Locked` : `Unocked`}}</button>
-            <button @click="stopTracking" class="p-4 rounded" :disabled="stopped" :class="stopped ? `bg-gray-500` : `bg-red-500`">
+            <button @click="toggleLock" class="p-4 rounded" :class="isLocked ? `bg-red-500` : `bg-green-500`" :key="refreshes">{{isLocked ? `Locked` : `Unlocked`}}</button>
+            <button @click="stopTracking" class="p-4 rounded" :disabled="stopped" :class="stopped ? `bg-gray-500` : `bg-red-500`" :key="refreshes">
                 {{stopped ? `Tracking stopped!` : `Stop Tracking`}}
             </button>
-            <button @click="getLat">Get lag</button>
-            <button @click="getLong">Get long</button>
+            <button @click="getLatButton">Get lat</button>
+            <button @click="getLongButton">Get long</button>
             <button @click="getIsMoved">Get isMoved</button>
         </div>
         <div class="flex flex-row gap-4 w-1/3 h-1/3">
@@ -165,12 +187,11 @@ onMounted(()=>{
                         name="OpenStreetMap"
                     ></l-tile-layer>
                     <l-polyline :lat-lngs="coordinates"></l-polyline>
-                    <template v-for="{image_url, coordinate} in images" v-bind:key="image_url">
+                    <template v-for="coordinate in coordinates" v-bind:key="coordinate">
                         <l-circle-marker :radius="3" :lat-lng="coordinate" >
                             <l-popup>
                                 <div>
                                     {{`Coordinate: ${coordinate}`}}
-                                    <img :src="image_url" alt="Footage from webcam">
                                 </div>
                             </l-popup>
                         </l-circle-marker>
