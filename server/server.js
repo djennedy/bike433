@@ -5,6 +5,7 @@ var fs   = require('fs');
 var path = require('path');
 var mime = require('mime');
 const express = require("express");
+const app = express();
 
 
 /*
@@ -56,6 +57,18 @@ function sendFile(response, filePath, fileContents) {
     );
     response.end(fileContents);
 }
+
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/image/:file', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', req.params.file));
+});
+
+app.listen(3000, () => {
+    console.log('Image server started on port 3000');
+});
+
 
 const udp = require("./udp_server");
 udp.listen(server);

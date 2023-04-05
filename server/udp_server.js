@@ -1,4 +1,4 @@
-var socketio = require('socket.io');
+const {Server} = require('socket.io');
 var io;
 const { spawn } = require('child_process');
 var fs = require('fs');
@@ -6,8 +6,7 @@ var path = require("path");
 var dgram = require('dgram');
 
 exports.listen = function(server) {
-    io = socketio.listen(server);
-    io.set('log level 1');
+    io = new Server(server);
 
     io.sockets.on('connection', function(socket) {
         handleCommand(socket);
@@ -16,7 +15,7 @@ exports.listen = function(server) {
 
 function handleCommand(socket) {
     // Pased string of comamnd to relay
-    socket.on('udpCommand', function(data) {
+    socket.on('udpCommand', function(data,callback) {
         var errorTimer = setTimeout(function() {
             socket.emit("timeoutError", "setErrorOn");
         }, 1000)
@@ -26,6 +25,7 @@ function handleCommand(socket) {
         var PORT = 12345;
         var HOST = '127.0.0.1';
         var buffer = new Buffer(data);
+
 
         var client = dgram.createSocket('udp4');
         client.send(buffer, 0, buffer.length, PORT, HOST, function(err, bytes) {
@@ -43,7 +43,7 @@ function handleCommand(socket) {
             console.log("UDP Client: message Rx" + remote.address + ':' + remote.port +' - ' + message);
 
             var reply = message.toString('utf8').replace(/\0/g, "");
-            socket.emit('commandReply', reply);
+            callback(reply);
             clearTimeout(errorTimer);
             client.close();
 
@@ -54,21 +54,26 @@ function handleCommand(socket) {
         client.on("UDP Client: error", function(err) {
             console.log("error: ",err);
         })
-        client.on("webcam-capture", function(){
-            const SCREENSHOT_DIR = path.join(require('os').homedir(), `webcam-capture`)
-            fs.readFile(SCREENSHOT_DIR, (err) =>{
-                if(err){
-                    spawn("mkdir", [SCREENSHOT_DIR]);
-                }
-            });
-            const PICTURE_DIR = `${SCREENSHOT_DIR}/SCREENSHOT_${(new Date().toJSON())}.jpg`;
-            const camera = spawn("fswebcam", [
-                "-r 640x480"," --jpeg 85","-D 0",
-                `${PICTURE_DIR}`
-                ]
-            );
-            camera.on("close",()=>{
-            })
-        })
     });
+
+    socket.on("webcam-capture", function(callback){
+        console.log("UDP client: asking for picture");
+        const SCREENSHOT_DIR = path.join(__dirname, `images`);
+        fs.readFile(SCREENSHOT_DIR, (err) =>{
+            if(err){
+                spawn("mkdir", [SCREENSHOT_DIR]);
+            }
+        });
+        const PICTURE_NAME = `SCREENSHOT_${(new Date().toJSON())}.jpg`;
+        const camera = spawn("fswebcam", [
+                "-r 640x480"," --jpeg 85","-D 0",
+                `${path.join(SCREENSHOT_DIR,PICTURE_NAME)}`
+            ]
+        );
+        camera.on("close",()=>{
+            console.log(`localhost:3000/images/`+PICTURE_NAME);
+            callback(`localhost:3000/images/`+PICTURE_NAME);
+        })
+    })
+
 };
