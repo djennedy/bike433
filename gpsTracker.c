@@ -32,7 +32,7 @@ static double getDistanceBetweenLats(double lat1, double lat2) {
     return dist * DEGREE_METER_ESTIMATE;
 }
 
-static double getDistanceBetweenLons(double lon1, double lon2) {
+static double getDistanceBetweenLongs(double lon1, double lon2) {
     // Formula used is a very rough approximate, taken from username whuber's comment on  https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
     // Using an exact formula, such as haversine, will introduce rounding errors because the difference between our values are small
 
