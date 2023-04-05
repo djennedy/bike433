@@ -8,21 +8,24 @@
 #include "buzzer.h"
 #include "joystick.h"
 #include "shutdown.h"
+#include "watchdog.h"
 
 void initialize() {
-    Gps_init();
+    //Gps_init();
     Joystick_init();
     Buzzer_init();
-    GpsTrack_startTracking();
+    //GpsTrack_startTracking();
     Net_startListening();
+    //Watchdog_init();
 }
 
 void cleanup() {
+    //Watchdog_cleanup();
     Net_stopListening();
-    GpsTrack_stopTracking();
+    //GpsTrack_stopTracking();
     Buzzer_cleanup();
     Joystick_cleanup();
-    Gps_cleanup();
+    //Gps_cleanup();
 }
 
 int main() {

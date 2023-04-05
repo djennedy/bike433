@@ -6,6 +6,7 @@
 #include "gpio.h"
 #include "gpsTracker.h"
 #include "timer.h"
+#include "watchdog.h"
 
 typedef enum {
     IDLE,
@@ -29,6 +30,7 @@ void Joystick_cleanup(void);
 
 void* joystickThread(void* args) {
     while (joystickRunning) {
+        Watchdog_joystickHit();
         JoystickDirection direction = GPIO_getJoystickDirection();
 
         if (direction != NONE) {
@@ -94,7 +96,7 @@ void* joystickThread(void* args) {
                     break;
             }
         }
-        Timer_sleepForMs(100);
+        Timer_sleepForMs(250);
     }
     return NULL;
 }
