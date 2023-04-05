@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include "gpsController.h"
 #include "gpsTracker.h"
+#include "buzzer.h"
 
 #define MY_PI (3.14159265358979323846264338327950288) // Value copied from https://c-for-dummies.com/blog/?p=3015
 
@@ -56,6 +57,7 @@ static void* trackGps() {
 
             if (latDist > DIST_THRESHOLD_m || lonDist > DIST_THRESHOLD_m) {
                 isMoved = true;
+                Buzzer_alarmOn();
             }
         }
     }
@@ -76,6 +78,7 @@ void GpsTrack_stopTracking() {
 void GpsTrack_lockPosition() {
     isLocked = true;
     lockedGpsVal = currGpsVal;
+    Buzzer_alarmOff();
 }
 
 // Unlocks the current positon
