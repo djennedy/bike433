@@ -6,6 +6,7 @@
 
 #include "command.h"
 #include "timer.h"
+#include "watchdog.h"
 
 //For Click Board Buzzer
 #define BUZZER_PIN "P8_13"
@@ -45,6 +46,7 @@ void turnOff(void) { Command_runCommand("echo " OFF " > " PWM_DIR "enable"); }
 
 void *buzzerThread(void *arg) {
     while (buzzerRunning) {
+        Watchdog_buzzerHit();
         if (buzzerOn || (buzzerAlarmMode && Timer_getTimeInMs() % 1000 < 250)) {
             turnOn();
         } else {
