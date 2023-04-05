@@ -37,7 +37,8 @@ static double getDistanceBetweenLons(double lon1, double lon2) {
     // Using an exact formula, such as haversine, will introduce rounding errors because the difference between our values are small
 
     double dist = fabs(lon1 - lon2);
-    return cos(dist) * DEGREE_METER_ESTIMATE;
+    double distRadians = dist * (MY_PI/180.0);
+    return cos(distRadians) * DEGREE_METER_ESTIMATE;
 }
 
 static void* trackGps() {
@@ -87,6 +88,10 @@ bool GpsTrack_isMoved() {
     return isMoved;
 }
 
-Gps_values_t getCurrGpsVal() {
+bool GpsTrack_isLocked() {
+    return isLocked;
+}
+
+Gps_values_t GpsTrack_getCurrGpsVal() {
     return currGpsVal;
 }
