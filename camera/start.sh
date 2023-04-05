@@ -16,7 +16,7 @@ fi
 
 
 ffmpeg -y \
-    -input_format mjpeg \
+    -input_format libx264 \
     -f video4linux2 \
     -use_wallclock_as_timestamps 1 \
     -copyts \
