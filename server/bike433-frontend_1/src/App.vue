@@ -32,6 +32,11 @@ let openStreetMapURL = ref("https://www.openstreetmap.org/");
 const getLat = async function(isClicked? : Boolean){
     socket.emit("udpCommand","get_lat",(response : string)=>{
         latestLat.value = Number.parseFloat(response);
+        if (isNaN(latestLat.value)) {
+            isInvalid = true;
+        } else {
+            isInvalid = false;
+        }
     })
 }
 
@@ -45,6 +50,11 @@ const getLatButton = async () => {
 const getLong = async function (isClicked? : Boolean){
     socket.emit("udpCommand","get_long",(response : string)=>{
         latestLong.value = Number.parseFloat(response);
+        if (isNaN(latestLong.value)) {
+            isInvalid = true;
+        } else {
+            isInvalid = false;
+        }
     })
 }
 
@@ -153,7 +163,6 @@ const handleInvalidCases = function (this: any, response : string){
         isInvalid = true;
     }
     if(isNaN(Number.parseFloat(response))){
-        isInvalid = false;
         return;
     }
 }
@@ -176,29 +185,30 @@ onMounted(()=>{
         :key="refreshes" >
             {{ isMoved && isLocked ? 'Stolen!!!' : 'Not Stolen!' }}
         </p>
-        <div class="flex flex-row gap-4 items-center ">
-            <button @click="toggleLock" class="p-4 rounded" :class="isLocked ? `bg-red-500` : `bg-green-500`" :key="refreshes">{{isLocked ? `Locked` : `Unlocked`}}</button>
-            <button @click="stopTracking" class="p-4 rounded" :disabled="stopped" :class="stopped ? `bg-gray-500` : `bg-red-500`" :key="refreshes">
-                {{stopped ? `Tracking stopped!` : `Stop Tracking`}}
-            </button>
-            <button @click="getLatButton">Get lat</button>
+        <div class="flex flex-col gap-4 items-center ">
+            <div class="flex-row gap-x-4">
+                <button @click="toggleLock" class="p-4 rounded" :class="isLocked ? `bg-red-500` : `bg-green-500`" :key="refreshes">{{isLocked ? `Locked` : `Unlocked`}}</button>
+                <button @click="stopTracking" class="p-4 rounded" :disabled="stopped" :class="stopped ? `bg-gray-500` : `bg-red-500`" :key="refreshes">
+                    {{stopped ? `Tracking stopped!` : `Stop Tracking`}}
+                </button>
+            </div>
             <p v-if="isInvalid">
-                Latitude Invalid!
+                Latitude Invalid! Please use the device outdoors or wait the GPS to get a fix.
             </p>
             <p v-else>
                 Current Latitude: {{ latestLat }}
             </p>
-            <button @click="getLongButton">Get long</button>
             <p v-if="isInvalid">
-                Longitude Invalid!
+                Longitude Invalid! Please use the device outdoors or wait the GPS to get a fix.
             </p>
             <p v-else>
                 Current Longitude: {{ latestLong }}
             </p>
-            <button @click="getIsMoved">Get isMoved</button>
 
             <a :href="openStreetMapURL">
-                Open location in Open Street Map!
+                <button class="p-4 rounded bg-blue-500">
+                    Open location in Open Street Map!
+                </button>
             </a>
             
         </div>
