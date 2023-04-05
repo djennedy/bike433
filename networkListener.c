@@ -74,7 +74,7 @@ static char* generateReply(Commands command) {
                 double lat = GpsTrack_getCurrGpsVal().latitudeVal;
                 snprintf(tempString, STRING_MAX_LENGTH, "%f", lat);
             } else {
-                strcpy(tempString, "invalid");
+                strcpy(tempString, "invalid\n");
             }
 
             int stringLen = strlen(tempString);
@@ -89,9 +89,9 @@ static char* generateReply(Commands command) {
             char tempString[STRING_MAX_LENGTH];
             if (currGpsVal.qualityIndicator != 0) {
                 double lon = GpsTrack_getCurrGpsVal().longitudeVal;
-                snprintf(tempString, STRING_MAX_LENGTH, "%f", lon);
+                snprintf(tempString, STRING_MAX_LENGTH, "%f\n", lon);
             } else {
-                strcpy(tempString, "invalid");
+                strcpy(tempString, "invalid\n");
             }
 
             int stringLen = strlen(tempString);
@@ -103,7 +103,7 @@ static char* generateReply(Commands command) {
 
         case GET_LOCK_STATUS: {
             bool isLocked = GpsTrack_isLocked();
-            char* tempString = isLocked ? "is locked" : "is not locked";
+            char* tempString = isLocked ? "is locked\n" : "is not locked\n";
             int stringLen = strlen(tempString);
             reply = (char*) malloc((stringLen + 1) * sizeof(char));
             strncpy(reply, tempString, stringLen);
@@ -113,7 +113,7 @@ static char* generateReply(Commands command) {
 
         case LOCK_DEVICE: {
             GpsTrack_lockPosition();
-            char* tempString = "locked";
+            char* tempString = "locked\n";
             int stringLen = strlen(tempString);
             reply = (char*) malloc((stringLen + 1) * sizeof(char));
             strncpy(reply, tempString, stringLen);
@@ -123,7 +123,7 @@ static char* generateReply(Commands command) {
 
         case UNLOCK_DEVICE: {
             GpsTrack_unlockPosition();
-            char* tempString = "unlocked";
+            char* tempString = "unlocked\n";
             int stringLen = strlen(tempString);
             reply = (char*) malloc((stringLen + 1) * sizeof(char));
             strncpy(reply, tempString, stringLen);
@@ -133,7 +133,7 @@ static char* generateReply(Commands command) {
 
         case GET_MOVE_STATUS: {
             bool isMoved = GpsTrack_isMoved();
-            char* tempString = isMoved ? "is moved" : "is not moved";
+            char* tempString = isMoved ? "is moved\n" : "is not moved\n";
             int stringLen = strlen(tempString);
             reply = (char*) malloc((stringLen + 1) * sizeof(char));
             strncpy(reply, tempString, stringLen);
