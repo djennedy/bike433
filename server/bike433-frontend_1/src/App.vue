@@ -43,6 +43,9 @@ const updateCoordinate = function (){
     getLat()
         .then(() => getLong())
         .then(() =>{
+            if(isNaN(latestLong.value) || isNaN(latestLat.value)){
+                return;
+            }
             let coordinate = [latestLat.value, latestLong.value];
             coordinates.value.push(coordinate);
         });
@@ -73,22 +76,35 @@ const getIsMoved = function(){
 }
 
 const getImages = function(){
+    let coordinate = [latestLat.value, latestLong.value];
+    if(!coordinates.value[coordinates.value.length - 1]){
+        return;
+    }
+    if(coordinate.toString() == coordinates.value[coordinates.value.length - 1].toString()){
+        return;
+    }
+    if(coordinate.toString() == [0,0].toString()){
+        return;
+    }
+    if(coordinate.includes(NaN)){
+        return;
+    }
     socket.emit("webcam-capture", (response : string)=>{
         images.value.push({
             image_url: response,
-            coordinate: [latestLat.value, latestLong.value]
+            coordinate: coordinate
         });
     })
 }
 
-const  updateInfo = function (){
-    setInterval(function(){
-        updateCoordinate();
-        getIsLocked();
-        getIsMoved();
-        getImages();
-    },5000);
-}
+// const  updateInfo = function (){
+//     setInterval(function(){
+//         updateCoordinate();
+//         getIsLocked();
+//         getIsMoved();
+//         getImages();
+//     },5000);
+// }
 
 const toggleLock = function(){
     isLocked.value = ! isLocked.value;
@@ -109,13 +125,16 @@ const handleInvalidCases = function (this: any, response : string){
     if(response.includes("invalid")){
         toast.warning("Unable to get GPS signal. Please be patience as this is not the best GPS unit :(");
     }
+    if(isNaN(Number.parseFloat(response))){
+        return;
+    }
 }
 
 const zoom = ref(18);
 const surreyCoordinate = ref([49.1891913,-122.850232]);
 
 onMounted(()=>{
-    updateInfo();
+    // updateInfo();
 })
 
 </script>
@@ -132,6 +151,9 @@ onMounted(()=>{
             <button @click="stopTracking" class="p-4 rounded" :disabled="stopped" :class="stopped ? `bg-gray-500` : `bg-red-500`">
                 {{stopped ? `Tracking stopped!` : `Stop Tracking`}}
             </button>
+            <button @click="getLat">Get lag</button>
+            <button @click="getLong">Get long</button>
+            <button @click="getIsMoved">Get isMoved</button>
         </div>
         <div class="flex flex-row gap-4 w-1/3 h-1/3">
             <!--          <video id="camera-video" width=600 height=300 class="video-js vjs-default-skin" controls></video>-->

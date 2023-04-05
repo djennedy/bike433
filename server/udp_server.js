@@ -24,7 +24,7 @@ function handleCommand(socket) {
         // Info for connecting to the local process via UDP
         var PORT = 12345;
         var HOST = '127.0.0.1';
-        var buffer = new Buffer(data);
+        var buffer = new Buffer.from(data);
 
 
         var client = dgram.createSocket('udp4');
@@ -36,13 +36,14 @@ function handleCommand(socket) {
 
         client.on('listening', function () {
             var address = client.address();
-            console.log('UDP Client: listening on ' + address.address + ":" + address.port);
+            // console.log('UDP Client: listening on ' + address.address + ":" + address.port);
         });
         // Handle an incoming message over the UDP from the local application.
         client.on('message', function (message, remote) {
             console.log("UDP Client: message Rx" + remote.address + ':' + remote.port +' - ' + message);
-
+            console.log("Message before filtering:", message.toString());
             var reply = message.toString('utf8').replace(/\0/g, "");
+            console.log(`Message received: ${reply}`);
             callback(reply);
             clearTimeout(errorTimer);
             client.close();
@@ -57,7 +58,6 @@ function handleCommand(socket) {
     });
 
     socket.on("webcam-capture", function(callback){
-        console.log("UDP client: asking for picture");
         const SCREENSHOT_DIR = path.join(__dirname, `images`);
         fs.readFile(SCREENSHOT_DIR, (err) =>{
             if(err){
@@ -71,7 +71,6 @@ function handleCommand(socket) {
             ]
         );
         camera.on("close",()=>{
-            console.log(`localhost:3000/images/`+PICTURE_NAME);
             callback(`localhost:3000/images/`+PICTURE_NAME);
         })
     })
