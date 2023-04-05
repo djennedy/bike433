@@ -63,7 +63,6 @@ void* joystickThread(void* args) {
                     break;
             }
         }
-        printf("Direction: %d, State: %d\n", direction, joystickState);
         Timer_sleepForMs(100);
     }
     return NULL;
