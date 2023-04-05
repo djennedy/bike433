@@ -8,8 +8,8 @@
 #include "timer.h"
 
 //For Click Board Buzzer
-#define BUZZER_PIN "P9_21"
-#define PWM_DIR "/dev/bone/pwm/0/b/"
+#define BUZZER_PIN "P8_13"
+#define PWM_DIR "/dev/bone/pwm/2/b/"
 
 //For Zen Cape Buzzer
 // #define BUZZER_PIN "P9_22"
