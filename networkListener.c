@@ -10,6 +10,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <ctype.h> 
+#include "shutdown.h"
 #include "networkListener.h"
 #include "gpsTracker.h"
 
@@ -30,12 +31,13 @@ typedef enum Commands_e {
     LOCK_DEVICE,
     UNLOCK_DEVICE,
     GET_MOVE_STATUS,
+    STOP,
     NUM_OF_COMMANDS
 } Commands;
 
 // Note: if the order of this array is changed, the enum will also have to be changed.
 static const char* validCommandStrings[] = {
-   "get_lat", "get_long", "get_lock", "lock", "unlock", "get_isMoved"
+   "get_lat", "get_long", "get_lock", "lock", "unlock", "get_isMoved", "stop"
 };
 
 static bool isShutDown = false;
@@ -120,7 +122,7 @@ static char* generateReply(Commands command) {
         }
 
         case UNLOCK_DEVICE: {
-            GpsTrack_lockPosition();
+            GpsTrack_unlockPosition();
             char* tempString = "unlocked";
             int stringLen = strlen(tempString);
             reply = (char*) malloc((stringLen + 1) * sizeof(char));
@@ -132,6 +134,15 @@ static char* generateReply(Commands command) {
         case GET_MOVE_STATUS: {
             bool isMoved = GpsTrack_isMoved();
             char* tempString = isMoved ? "is moved" : "is not moved";
+            int stringLen = strlen(tempString);
+            reply = (char*) malloc((stringLen + 1) * sizeof(char));
+            strncpy(reply, tempString, stringLen);
+            reply[stringLen] = '\0';
+            break;
+        }
+
+        case STOP: {
+            char* tempString = "Program terminating.\n";
             int stringLen = strlen(tempString);
             reply = (char*) malloc((stringLen + 1) * sizeof(char));
             strncpy(reply, tempString, stringLen);
@@ -190,6 +201,12 @@ static void* listenToUdp() {
             sendto(socketDescriptor, tempStr, MODEM_MTU_LIMIT, 0, (struct sockaddr *) &sinRemote, sinLen);
         }
         free(messageTx);
+
+        if (commandRx == STOP){
+            Shutdown_triggerShutdown();
+            isShutDown = true;
+            break;
+        }
     }
 
     close(socketDescriptor);
