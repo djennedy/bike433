@@ -13,7 +13,10 @@
 
 #define MY_PI (3.14159265358979323846264338327950288) // Value copied from https://c-for-dummies.com/blog/?p=3015
 
-#define DIST_THRESHOLD_m 5
+#define DIST_THRESHOLD_m 3
+
+#define NUM_OF_LOCK_BUZZ 4
+#define NUM_OF_UNLOCK_BUZZ 2
 
 #define DEGREE_METER_ESTIMATE 111111
 
@@ -52,6 +55,7 @@ static void* trackGps() {
 
         // If the gps value is invalid, continue
         if (currGpsVal.qualityIndicator == 0) {
+            printf("GPS signal not fixed, please wait for fix or take the device outdoors.\n");
             continue;
         }
 
@@ -66,6 +70,7 @@ static void* trackGps() {
                 Buzzer_alarmOn();
             }
         }
+        printf("Latitude = %lf \t Longitude = %lf \t Fix = %d\n", currGpsVal.latitudeVal, currGpsVal.longitudeVal, currGpsVal.qualityIndicator);
     }
 
     return NULL;
@@ -86,6 +91,11 @@ void GpsTrack_lockPosition() {
     lockedGpsVal = currGpsVal;
     isMoved = false;
     Buzzer_alarmOff();
+
+    for (int i = 0; i < NUM_OF_LOCK_BUZZ; i++) {
+        Buzzer_quickBuzz();
+    }
+
 }
 
 // Unlocks the current positon
@@ -93,6 +103,10 @@ void GpsTrack_unlockPosition() {
     isLocked = false;
     isMoved = false; // Resets isMoved if gps is unlocked
     Buzzer_alarmOff();
+
+    for (int i = 0; i < NUM_OF_UNLOCK_BUZZ; i++) {
+        Buzzer_quickBuzz();
+    }
 }
 
 // Returns true if the gps is in lock state but is mov3ed more than 5 meters
