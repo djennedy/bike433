@@ -1,0 +1,11 @@
+[Unit]
+Description=Bike anti theft server
+
+[Service]
+User=root
+WorkingDirectory=/opt/bikeAntiTheft
+ExecStart=/usr/bin/node /opt/bikeAntiTheft/project_server/server.js
+SyslogIdentifier=BikeAntiTheftServer
+
+[Install]
+WantedBy=multi-user.target
