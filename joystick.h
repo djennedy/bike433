@@ -7,4 +7,4 @@
 void Joystick_init(void);
 void Joystick_cleanup(void);
 
-#endif
+#endif /* JOYSTICK_H */

@@ -3,4 +3,4 @@
 
 void Command_runCommand(char *command);
 
-#endif
+#endif /* COMMAND_H */
