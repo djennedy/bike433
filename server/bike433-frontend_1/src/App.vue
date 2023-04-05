@@ -24,6 +24,9 @@ const coordinates = ref<Number[][]>([]);
 // const images = ref<{image_url:string, coordinate:Number[]}[]>([]);
 const stopped = ref(false);
 const refreshes = ref(0);
+const invalidText = "invalid";
+let isInvalid = true;
+let openStreetMapURL = ref("https://www.openstreetmap.org/");
 
 
 const getLat = async function(isClicked? : Boolean){
@@ -32,7 +35,7 @@ const getLat = async function(isClicked? : Boolean){
     })
 }
 
-const getLatButton = () => {
+const getLatButton = async () => {
         socket.emit("udpCommand","get_lat",(response : string)=>{
             handleInvalidCases(response);
             latestLat.value = Number.parseFloat(response);
@@ -45,7 +48,7 @@ const getLong = async function (isClicked? : Boolean){
     })
 }
 
-const getLongButton = async function (isClicked? : Boolean){
+const getLongButton = async function (){
     socket.emit("udpCommand","get_long",(response : string)=>{
         handleInvalidCases(response);
         latestLong.value = Number.parseFloat(response);
@@ -66,6 +69,9 @@ const updateCoordinate = function (){
             if (coordinates.value.length > 1024) {
                 coordinates.value.shift();
             }
+        })
+        .then(() =>  {
+            openStreetMapURL.value = `https://www.openstreetmap.org/search?query=${latestLat.value}%20${latestLong.value}`
         });
 }
 
@@ -144,8 +150,10 @@ const stopTracking = function(){
 const handleInvalidCases = function (this: any, response : string){
     if(response.includes("invalid")){
         toast.warning("Unable to get GPS signal. Please be patience as this is not the best GPS unit :(");
+        isInvalid = true;
     }
     if(isNaN(Number.parseFloat(response))){
+        isInvalid = false;
         return;
     }
 }
@@ -174,31 +182,27 @@ onMounted(()=>{
                 {{stopped ? `Tracking stopped!` : `Stop Tracking`}}
             </button>
             <button @click="getLatButton">Get lat</button>
+            <p v-if="isInvalid">
+                Latitude Invalid!
+            </p>
+            <p v-else>
+                Current Latitude: {{ latestLat }}
+            </p>
             <button @click="getLongButton">Get long</button>
+            <p v-if="isInvalid">
+                Longitude Invalid!
+            </p>
+            <p v-else>
+                Current Longitude: {{ latestLong }}
+            </p>
             <button @click="getIsMoved">Get isMoved</button>
+
+            <a :href="openStreetMapURL">
+                Open location in Open Street Map!
+            </a>
+            
         </div>
-        <div class="flex flex-row gap-4 w-1/3 h-1/3">
-            <!--          <video id="camera-video" width=600 height=300 class="video-js vjs-default-skin" controls></video>-->
-            <div style="height:600px; width:800px">
-                <l-map ref="map" v-model:zoom="zoom" :center="surreyCoordinate" :use-global-leaflet="false">
-                    <l-tile-layer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        layer-type="base"
-                        name="OpenStreetMap"
-                    ></l-tile-layer>
-                    <l-polyline :lat-lngs="coordinates"></l-polyline>
-                    <template v-for="coordinate in coordinates" v-bind:key="coordinate">
-                        <l-circle-marker :radius="3" :lat-lng="coordinate" >
-                            <l-popup>
-                                <div>
-                                    {{`Coordinate: ${coordinate}`}}
-                                </div>
-                            </l-popup>
-                        </l-circle-marker>
-                    </template>
-                </l-map>
-            </div>
-        </div>
+        
     </main>
 </template>
 
