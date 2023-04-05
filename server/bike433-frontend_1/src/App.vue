@@ -97,14 +97,14 @@ const getImages = function(){
     })
 }
 
-// const  updateInfo = function (){
-//     setInterval(function(){
-//         updateCoordinate();
-//         getIsLocked();
-//         getIsMoved();
-//         getImages();
-//     },5000);
-// }
+const  updateInfo = function (){
+    setInterval(function(){
+        updateCoordinate();
+        getIsLocked();
+        getIsMoved();
+        getImages();
+    },5000);
+}
 
 const toggleLock = function(){
     isLocked.value = ! isLocked.value;
@@ -134,7 +134,7 @@ const zoom = ref(18);
 const surreyCoordinate = ref([49.1891913,-122.850232]);
 
 onMounted(()=>{
-    // updateInfo();
+    updateInfo();
 })
 
 </script>
