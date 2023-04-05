@@ -9,10 +9,16 @@ var io;
 var dgram = require('dgram');
 
 exports.listen = function(server) {
-    io = new socketio();
+    io = new socketio({
+        cors: {
+            origin: true,
+            credentials: true
+        }
+    });
     io.listen(server);
 
     io.sockets.on('connection', function(socket) {
+        console.log("connected");
         handleCommand(socket);
     });
 };
