@@ -21,13 +21,13 @@ const images = ref<{a:string, b:Number[]}[]>([]);
 
 
 const getLat = async function(){
-    socket.emit("get_lat",(response : string)=>{
+    socket.emit("message","get_lat",(response : string)=>{
         latestLat.value = Number.parseFloat(response);
     })
 }
 
 const getLong = async function (){
-    socket.emit("get_long",(response : string)=>{
+    socket.emit("message","get_long",(response : string)=>{
         latestLong.value = Number.parseFloat(response);
     })
 }
@@ -38,35 +38,35 @@ const updateCoordinate = function (){
         .then(() =>{
             let coordinate = [latestLat.value, latestLong.value];
             coordinates.value.push(coordinate);
-        })
+        });
 }
 
 const getIsLocked = function(){
-    socket.emit("get_lock", (response : string) =>{
+    socket.emit("message","get_lock", (response : string) =>{
         isLocked.value = response.includes("is locked");
     })
 }
 
 const setLock = function(){
-    socket.emit("lock",(response : string) =>{
+    socket.emit("message","lock",(response : string) =>{
         console.log(`Lock status:` + response);
     })
 }
 
 const setUnlock = function(){
-    socket.emit("unlock",(response : string)=>{
+    socket.emit("message","unlock",(response : string)=>{
         console.log(`Lock status: ` + response);
     })
 }
 
 const getIsMoved = function(){
-    socket.emit("get_isMoved",(response : string) =>{
+    socket.emit("message","get_isMoved",(response : string) =>{
         isMoved.value = response.includes("is moved");
     })
 }
 
 const getImages = function(){
-    socket.emit("webcam-capture", (response : string)=>{
+    socket.emit("message","webcam-capture", (response : string)=>{
 
     })
 }

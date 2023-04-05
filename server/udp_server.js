@@ -15,7 +15,6 @@ exports.listen = function(server) {
 };
 
 function handleCommand(socket) {
-
     // Pased string of comamnd to relay
     socket.on('udpCommand', function(data) {
         var errorTimer = setTimeout(function() {
@@ -69,7 +68,6 @@ function handleCommand(socket) {
                 ]
             );
             camera.on("close",()=>{
-                image.src = PICTURE_DIR;
             })
         })
     });
