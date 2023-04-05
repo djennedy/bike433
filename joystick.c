@@ -4,14 +4,17 @@
 
 #include "buzzer.h"
 #include "gpio.h"
-#include "timer.h"
 #include "gpsTracker.h"
+#include "timer.h"
 
 typedef enum {
     IDLE,
-    PRESS_1,
-    PRESS_2,
-    PRESS_3,
+    PRESS_1_LOCK,
+    PRESS_2_LOCK,
+    PRESS_3_LOCK,
+    PRESS_1_UNLOCK,
+    PRESS_2_UNLOCK,
+    PRESS_3_UNLOCK,
     LOCKED,
     UNLOCKED
 } JoystickState;
@@ -33,28 +36,56 @@ void* joystickThread(void* args) {
             switch (joystickState) {
                 case IDLE:
                     if (direction == DOWN) {
-                        joystickState = PRESS_1;
+                        joystickState = PRESS_1_LOCK;
+                    } else if (direction == LEFT) {
+                        joystickState = PRESS_1_UNLOCK;
                     }
                     break;
-                case PRESS_1:
+
+                case PRESS_1_LOCK:
                     if (direction == UP) {
-                        joystickState = PRESS_2;
+                        joystickState = PRESS_2_LOCK;
                     } else {
                         joystickState = IDLE;
                     }
                     break;
-                case PRESS_2:
+
+                case PRESS_2_LOCK:
                     if (direction == DOWN) {
-                        joystickState = PRESS_3;
+                        joystickState = PRESS_3_LOCK;
                     } else {
                         joystickState = IDLE;
                     }
                     break;
-                case PRESS_3:
+
+                case PRESS_3_LOCK:
                     if (direction == IN) {
-                        // TODO: Change so we don't have to use toggle
-                        GpsTrack_isLocked() ? GpsTrack_unlockPosition() : GpsTrack_lockPosition();
-                        printf("Lock Toggled: Currently GPS is %s\n", GpsTrack_isLocked() ? "locked" : "not locked");
+                        GpsTrack_lockPosition();
+                        printf("Locked\n");
+                    }
+                    joystickState = IDLE;
+                    break;
+
+                case PRESS_1_UNLOCK:
+                    if (direction == RIGHT) {
+                        joystickState = PRESS_2_UNLOCK;
+                    } else {
+                        joystickState = IDLE;
+                    }
+                    break;
+
+                case PRESS_2_UNLOCK:
+                    if (direction == LEFT) {
+                        joystickState = PRESS_3_UNLOCK;
+                    } else {
+                        joystickState = IDLE;
+                    }
+                    break;
+
+                case PRESS_3_UNLOCK:
+                    if (direction == IN) {
+                        GpsTrack_unlockPosition();
+                        printf("Unlocked\n");
                     }
                     joystickState = IDLE;
                     break;
@@ -63,7 +94,6 @@ void* joystickThread(void* args) {
                     break;
             }
         }
-        printf("Direction: %d, State: %d\n", direction, joystickState);
         Timer_sleepForMs(100);
     }
     return NULL;
