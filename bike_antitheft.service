@@ -1,0 +1,11 @@
+[Unit]
+Description=Bike anti theft main program
+
+[Service]
+User=root
+WorkingDirectory=/opt/bikeAntiTheft
+ExecStart=/opt/bikeAntiTheft/bike_anti_theft
+SyslogIdentifier=BikeAntiTheft
+
+[Install]
+WantedBy=multi-user.target
