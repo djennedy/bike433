@@ -1,0 +1,12 @@
+[Unit]
+Description=Bike Camera service instance
+After=network.target
+
+[Service]
+ExecStart=/mnt/remote/bike433/camera/start.sh
+ExecStopPost=/mnt/remote/bike433/camera/stop.sh
+PIDFile=/tmp/bike_camera.pid
+Restart=always
+
+
+[Install]
