@@ -4,8 +4,8 @@
 
 #include "buzzer.h"
 #include "gpio.h"
-#include "timer.h"
 #include "gpsTracker.h"
+#include "timer.h"
 
 typedef enum {
     IDLE,
@@ -27,24 +27,28 @@ void Joystick_cleanup(void);
 void* joystickThread(void* args) {
     while (joystickRunning) {
         JoystickDirection direction = GPIO_getJoystickDirection();
+        bool isLocked = GpsTrack_isLocked();
 
         if (direction != NONE) {
             Buzzer_quickBuzz();
             switch (joystickState) {
                 case IDLE:
-                    if (direction == DOWN) {
+                    if ((direction == DOWN && !isLocked) ||
+                        (direction == LEFT && isLocked)) {
                         joystickState = PRESS_1;
                     }
                     break;
                 case PRESS_1:
-                    if (direction == UP) {
+                    if ((direction == UP && !isLocked) ||
+                        (direction == RIGHT && isLocked)) {
                         joystickState = PRESS_2;
                     } else {
                         joystickState = IDLE;
                     }
                     break;
                 case PRESS_2:
-                    if (direction == DOWN) {
+                    if ((direction == DOWN && !isLocked) ||
+                        (direction == LEFT && isLocked)) {
                         joystickState = PRESS_3;
                     } else {
                         joystickState = IDLE;
@@ -53,8 +57,11 @@ void* joystickThread(void* args) {
                 case PRESS_3:
                     if (direction == IN) {
                         // TODO: Change so we don't have to use toggle
-                        GpsTrack_isLocked() ? GpsTrack_unlockPosition() : GpsTrack_lockPosition();
-                        printf("Lock Toggled: Currently GPS is %s\n", GpsTrack_isLocked() ? "locked" : "not locked");
+                        if (isLocked) {
+                            GpsTrack_lockPosition();
+                        } else {
+                            GpsTrack_unlockPosition();
+                        }
                     }
                     joystickState = IDLE;
                     break;
