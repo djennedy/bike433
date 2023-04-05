@@ -5,6 +5,7 @@
 #include "buzzer.h"
 #include "gpio.h"
 #include "timer.h"
+#include "gpsTracker.h"
 
 typedef enum {
     IDLE,
@@ -52,8 +53,9 @@ void* joystickThread(void* args) {
                     break;
                 case PRESS_3:
                     if (direction == IN) {
-                        isLocked = !isLocked;
-                        printf("Locked or Unlocked! %d\n", isLocked);
+                        // TODO: Change so we don't have to use toggle
+                        GpsTrack_isLocked() ? GpsTrack_unlockPosition() : GpsTrack_lockPosition();
+                        printf("Lock Toggled: Currently GPS is %s\n", GpsTrack_isLocked() ? "locked" : "not locked");
                     }
                     joystickState = IDLE;
                     break;
