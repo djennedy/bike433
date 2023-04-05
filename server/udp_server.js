@@ -1,8 +1,8 @@
 var socketio = require('socket.io');
 var io;
-
+const { spawn } = require('child_process');
 var fs = require('fs');
-
+var path = require("path");
 var dgram = require('dgram');
 
 exports.listen = function(server) {
@@ -55,23 +55,23 @@ function handleCommand(socket) {
         client.on("UDP Client: error", function(err) {
             console.log("error: ",err);
         })
-        // client.on("screenshot", function(){
-        //     const SCREENSHOT_DIR = path.join(require('os').homedir(), `webcam-capture`)
-        //     fs.readFile(SCREENSHOT_DIR, (err) =>{
-        //         if(err){
-        //             spawn("mkdir", [SCREENSHOT_DIR]);
-        //         }
-        //     });
-        //     const PICTURE_DIR = `${SCREENSHOT_DIR}/SCREENSHOT_${(new Date().toJSON())}.jpg`;
-        //     const camera = spawn("fswebcam", [
-        //         "-r 640x480"," --jpeg 85","-D 0",
-        //         `${PICTURE_DIR}`
-        //         ]
-        //     );
-        //     camera.on("close",()=>{
-        //         let image = new Image();
-        //         image.src = PICTURE_DIR;
-        //     })
-        // })
+        client.on("screenshot", function(){
+            const SCREENSHOT_DIR = path.join(require('os').homedir(), `webcam-capture`)
+            fs.readFile(SCREENSHOT_DIR, (err) =>{
+                if(err){
+                    spawn("mkdir", [SCREENSHOT_DIR]);
+                }
+            });
+            const PICTURE_DIR = `${SCREENSHOT_DIR}/SCREENSHOT_${(new Date().toJSON())}.jpg`;
+            const camera = spawn("fswebcam", [
+                "-r 640x480"," --jpeg 85","-D 0",
+                `${PICTURE_DIR}`
+                ]
+            );
+            camera.on("close",()=>{
+                let image = new Image();
+                image.src = PICTURE_DIR;
+            })
+        })
     });
 };
