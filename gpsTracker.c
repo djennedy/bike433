@@ -10,6 +10,7 @@
 #include "gpsController.h"
 #include "gpsTracker.h"
 #include "buzzer.h"
+#include "watchdog.h"
 
 #define MY_PI (3.14159265358979323846264338327950288) // Value copied from https://c-for-dummies.com/blog/?p=3015
 #define TO_RAD (MY_PI/180);
@@ -68,6 +69,7 @@ static double haversineDist(double lat1, double lon1, double lat2, double lon2) 
 
 static void* trackGps() {
     while(!isShutDown) {
+        Watchdog_gpsTrackerHit();
         currGpsVal = Gps_readData();
 
         // If the gps value is invalid, continue
