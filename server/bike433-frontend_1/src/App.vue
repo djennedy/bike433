@@ -21,11 +21,12 @@ const isLocked = ref(false);
 const latestLat = ref(0);
 const latestLong = ref(0);
 const coordinates = ref<Number[][]>([]);
-// const images = ref<{image_url:string, coordinate:Number[]}[]>([]);
 const stopped = ref(false);
 const refreshes = ref(0);
 const invalidText = "invalid";
 let isInvalid = true;
+const image = ref("");
+const imageRefresh = ref(0);
 let openStreetMapURL = ref("https://www.openstreetmap.org/");
 
 
@@ -110,24 +111,9 @@ const getIsMoved = function(){
 }
 
 const getImages = function(){
-    let coordinate = [latestLat.value, latestLong.value];
-    if(!coordinates.value[coordinates.value.length - 1]){
-        return;
-    }
-    if(coordinate.toString() == coordinates.value[coordinates.value.length - 1].toString()){
-        return;
-    }
-    if(coordinate.toString() == [0,0].toString()){
-        return;
-    }
-    if(coordinate.includes(NaN)){
-        return;
-    }
     socket.emit("webcam-capture", (response : string)=>{
-        images.value.push({
-            image_url: response,
-            coordinate: coordinate
-        });
+        image.value = response;
+        imageRefresh.value += 1;
     })
 }
 
@@ -136,8 +122,6 @@ const  updateInfo = function (){
         console.log(`updated`);
         updateCoordinate();
         getIsLocked();
-        getIsMoved();
-        // getImages();
         refreshes.value += 1;
     },500);
 }
@@ -172,6 +156,7 @@ const surreyCoordinate = ref([49.1891913,-122.850232]);
 
 onMounted(()=>{
     updateInfo();
+    setInterval(getImages,5000);
 })
 
 </script>
@@ -210,7 +195,10 @@ onMounted(()=>{
                     Open location in Open Street Map!
                 </button>
             </a>
-            
+            <img style="width: 1280px; height: 640px" :src="image" alt="Image footage" :key="imageRefresh"/>
+
+        </div>
+        <div class="flex">
         </div>
         
     </main>

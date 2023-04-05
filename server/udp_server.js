@@ -71,7 +71,7 @@ function handleCommand(socket) {
             ]
         );
         camera.on("close",()=>{
-            callback(`localhost:3000/images/`+PICTURE_NAME);
+            callback(`http://192.168.7.2:3000/images/`+PICTURE_NAME);
         })
     })
 

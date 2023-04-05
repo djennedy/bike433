@@ -58,17 +58,29 @@ function sendFile(response, filePath, fileContents) {
     response.end(fileContents);
 }
 
+app.use(express.static(path.join(__dirname)));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.get('/images/:file',function(req,res){
+    const file = req.params.file;
+    console.log("XYZ",path.join(__dirname, 'public',file));
+    fs.readFile(path.join(__dirname, 'public',file), (err, data) => {
+        if (err) {
+            res.writeHead(500);
+            res.end(`Error loading image: ${err}`);
+            return;
+        }
 
-app.get('/image/:file', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', req.params.file));
-});
+        res.writeHead(200, {
+            'Content-Type': 'image/jpeg',
+            'Access-Control-Allow-Origin': '*',
+        });
+        res.end(data);
+    });
+})
 
 app.listen(3000, () => {
     console.log('Image server started on port 3000');
 });
-
 
 const udp = require("./udp_server");
 udp.listen(server);
