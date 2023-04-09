@@ -16,11 +16,11 @@ void initialize() {
     Buzzer_init();
     GpsTrack_startTracking();
     Net_startListening();
-    Watchdog_init();
+    // Watchdog_init();
 }
 
 void cleanup() {
-    Watchdog_cleanup();
+    // Watchdog_cleanup();
     Net_stopListening();
     GpsTrack_stopTracking();
     Buzzer_cleanup();
