@@ -29,24 +29,39 @@ pthread_t buzzerThreadID;
 static pthread_mutex_t alarmMutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t buzzerMutex = PTHREAD_MUTEX_INITIALIZER;
 
+void writeToFile(char *str, char *path) {
+    FILE *pPWMFile = fopen(path, "w");
+
+    if (pPWMFile == NULL) {
+        printf("ERROR OPENING %s.", path);
+        exit(1);
+    }
+
+    int charWritten = fprintf(pPWMFile, str);
+    if (charWritten <= 0) {
+        printf("ERROR WRITING DATA");
+        exit(1);
+    }
+    fclose(pPWMFile);
+}
+
 void config_pwm(void) {
     Command_runCommand("config-pin " BUZZER_PIN " pwm");
     buzzerRunning = true;
 }
 
 void setTone(void) {
-    Command_runCommand("echo " BUZZER_LOW_PERIOD " > " PWM_DIR "period");
-    Command_runCommand("echo " BUZZER_LOW_DUTY_CYCLE " > " PWM_DIR
-                       "duty_cycle");
+    writeToFile(BUZZER_LOW_PERIOD, PWM_DIR "period");
+    writeToFile(BUZZER_LOW_DUTY_CYCLE, PWM_DIR "duty_cycle");
 }
 
-void turnOn(void) { Command_runCommand("echo " ON " > " PWM_DIR "enable"); }
+void turnOn(void) { writeToFile(ON, PWM_DIR "enable"); }
 
-void turnOff(void) { Command_runCommand("echo " OFF " > " PWM_DIR "enable"); }
+void turnOff(void) { writeToFile(OFF, PWM_DIR "enable"); }
 
 void *buzzerThread(void *arg) {
     while (buzzerRunning) {
-        Watchdog_buzzerHit();
+        // Watchdog_buzzerHit();
         if (buzzerOn || (buzzerAlarmMode && Timer_getTimeInMs() % 1000 < 250)) {
             turnOn();
         } else {
