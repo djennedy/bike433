@@ -96,7 +96,7 @@ void* joystickThread(void* args) {
                     break;
             }
         }
-        Timer_sleepForMs(250);
+        Timer_sleepForMs(100);
     }
     return NULL;
 }
