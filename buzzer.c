@@ -61,7 +61,7 @@ void turnOff(void) { writeToFile(OFF, PWM_DIR "enable"); }
 
 void *buzzerThread(void *arg) {
     while (buzzerRunning) {
-        // Watchdog_buzzerHit();
+        Watchdog_buzzerHit();
         if (buzzerOn || (buzzerAlarmMode && Timer_getTimeInMs() % 1000 < 250)) {
             turnOn();
         } else {
