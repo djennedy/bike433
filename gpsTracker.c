@@ -15,7 +15,7 @@
 #define MY_PI (3.14159265358979323846264338327950288) // Value copied from https://c-for-dummies.com/blog/?p=3015
 #define TO_RAD (MY_PI/180);
 
-#define DIST_THRESHOLD_m 3
+#define DIST_THRESHOLD_m 7
 
 #define NUM_OF_LOCK_BUZZ 4
 #define NUM_OF_UNLOCK_BUZZ 2

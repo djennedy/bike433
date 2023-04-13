@@ -122,6 +122,7 @@ const  updateInfo = function (){
         console.log(`updated`);
         updateCoordinate();
         getIsLocked();
+        getIsMoved();
         refreshes.value += 1;
     },500);
 }
